@@ -1,0 +1,33 @@
+# Local test topology. Mirrors the single Railway service:
+#   app -> the Super Productivity web app + a WebDAV sync store, behind a Caddy basic-auth front door
+#          (one container). Caddy is public on $PORT (8080); WebDAV runs on loopback :6065 and keeps
+#          the sync data on /data.
+name: super-productivity-railway-test
+
+networks:
+  default:
+    name: super-productivity-railway-test
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: images/app/Dockerfile
+      args:
+        WRAPPER_VERSION: ${WRAPPER_VERSION:-0.0.0-local}
+        VCS_REF: ${VCS_REF:-local}
+    image: ${SP_RAILWAY_IMAGE:-super-productivity-railway:local}
+    restart: unless-stopped
+    init: true
+    environment:
+      PORT: '8080'
+      OWNER_USERNAME: owner
+      OWNER_PASSWORD: ${SP_TEST_OWNER_PASSWORD:-localTestOnlyOwnerPw1}
+      FORWARD_PROTO: http
+    ports:
+      - '127.0.0.1:${SP_TEST_PORT:-18190}:8080'
+    volumes:
+      - data:/data
+
+volumes:
+  data:

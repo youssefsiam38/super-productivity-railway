@@ -1,0 +1,52 @@
+# Public front door for the Super Productivity Railway template.
+#
+# This is the only public listener. On one HTTPS origin it:
+#   - answers GET /healthz itself, without auth, for Railway's health check;
+#   - puts EVERYTHING else behind HTTP basic auth (OWNER_USERNAME / generated OWNER_PASSWORD);
+#   - forwards /webdav/* to the loopback WebDAV server that stores the sync data on /data;
+#   - serves the Super Productivity web app (an SPA) for every other path.
+# Super Productivity has no login of its own and the WebDAV store holds all of a user's data, so
+# the front door is the gate for both. The plaintext password never reaches this file: the
+# entrypoint hashes it into CADDY_PASSWORD_HASH at start-up.
+{
+	admin off
+	auto_https off
+	persist_config off
+}
+
+:{$PORT:8080} {
+	handle /healthz {
+		@notget not method GET HEAD
+		respond @notget "method not allowed" 405
+		respond "ok" 200
+	}
+
+	handle {
+		basic_auth {
+			{$OWNER_USERNAME:owner} {$CADDY_PASSWORD_HASH}
+		}
+
+		handle /webdav {
+			redir * /webdav/ 308
+		}
+
+		handle /webdav/* {
+			# COPY/MOVE carry an absolute Destination URL (https://<domain>/webdav/...); the WebDAV
+			# server sits behind this proxy, so hand it the path only.
+			@hasDest header_regexp dest Destination ^https?://[^/]+(/.*)$
+			request_header @hasDest Destination {re.dest.1}
+			reverse_proxy 127.0.0.1:6065 {
+				header_up X-Forwarded-Proto {$FORWARD_PROTO:https}
+			}
+		}
+
+		handle {
+			root * /srv/app
+			# The app shell and service-worker manifest must be revalidated so upgrades reach clients.
+			@shell path / /index.html /ngsw.json /ngsw-worker.js
+			header @shell Cache-Control "no-cache"
+			try_files {path} /index.html
+			file_server
+		}
+	}
+}

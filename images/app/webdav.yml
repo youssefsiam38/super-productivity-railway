@@ -1,0 +1,18 @@
+# WebDAV sync backend for the Super Productivity Railway template.
+# Listens on loopback only; the Caddy front door is the only public listener and forwards
+# /webdav/* here unchanged (the prefix is stripped by this server, so PROPFIND hrefs stay correct).
+# The same owner credential is checked twice: by Caddy (front door) and here (defence in depth).
+address: 127.0.0.1
+port: 6065
+prefix: /webdav/
+behindProxy: true
+directory: /data/webdav
+permissions: CRUD
+cors:
+  enabled: false
+log:
+  format: console
+  colors: false
+users:
+  - username: '{env}OWNER_USERNAME'
+    password: '{env}OWNER_PASSWORD'

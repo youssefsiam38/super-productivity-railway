@@ -1,0 +1,9 @@
+{
+  "name": "super-productivity-railway-browser-e2e",
+  "private": true,
+  "description": "Real-browser cross-device sync test for the Super Productivity Railway template.",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "1.63.0"
+  }
+}
