@@ -12,7 +12,9 @@ Upstream project: https://github.com/johannesjo/super-productivity (MIT). The pi
 ## Wrapper image
 
 `ghcr.io/youssefsiam38/super-productivity-railway`, built by `.github/workflows/publish-image.yml` on a `vX.Y.Z` tag.
-The template pins it by digest; see `RAILWAY_TEMPLATE.md` for the exact reference.
+The template pins it by digest:
+
+`ghcr.io/youssefsiam38/super-productivity-railway:1.0.0@sha256:f024df37c6300bccb900ca546e2516f76a11989f742b08ca93ee406cc05a122b`
 
 ## Refreshing a digest
 

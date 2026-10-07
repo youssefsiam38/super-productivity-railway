@@ -44,6 +44,13 @@
 
 None required. Generated: `OWNER_PASSWORD`. Defaults: `OWNER_USERNAME=owner`, `PORT=8080`.
 
+## Live verification
+
+Published as https://railway.com/deploy/super-productivity. A clean-room deploy of the published template passed
+`tests/railway-smoke.sh` over HTTPS (33 checks, including the real-browser two-device sync), then the service was
+redeployed and the sync data (curl round-trip and browser-synced task) was still there. No password in the deploy
+logs.
+
 ## Verdict
 
 **SHIPPABLE** as a wrapper template (web app + WebDAV + Caddy front door in one service, volume `/data`).
